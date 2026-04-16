@@ -154,6 +154,8 @@ if(gperftools_tcmalloc_alignment STREQUAL "8")
   set(TCMALLOC_ALIGN_8BYTES ON)
 endif()
 
+option(GPERFTOOLS_BUILD_TESTING "Enable Testing" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
@@ -433,7 +435,7 @@ link_libraries(psapi synchronization shlwapi)
 
 endif()
 
-if(BUILD_TESTING)
+if(GPERFTOOLS_BUILD_TESTING)
   add_library(gtest STATIC vendor/googletest/googletest/src/gtest_main.cc
     vendor/googletest/googletest/src/gtest-assertion-result.cc
     vendor/googletest/googletest/src/gtest-death-test.cc
@@ -472,7 +474,7 @@ if(WITH_STACK_TRACE)
                  PROPERTY POSITION_INDEPENDENT_CODE ON)
   endif()
 
-  if(BUILD_TESTING)
+  if(GPERFTOOLS_BUILD_TESTING)
     add_executable(stacktrace_unittest
       src/tests/stacktrace_unittest.cc
       src/stacktrace.cc
@@ -518,7 +520,7 @@ target_compile_definitions(tcmalloc_minimal PRIVATE NO_TCMALLOC_SAMPLES)
 target_link_options(tcmalloc_minimal INTERFACE ${TCMALLOC_FLAGS})
 target_link_libraries(tcmalloc_minimal PRIVATE common)
 
-if(BUILD_TESTING)
+if(GPERFTOOLS_BUILD_TESTING)
   add_executable(tcmalloc_minimal_unittest
     src/tests/tcmalloc_unittest.cc
     src/tests/testutil.cc)
@@ -691,7 +693,7 @@ if(GPERFTOOLS_BUILD_DEBUGALLOC)
 
   ### Unittests
 
-  if(BUILD_TESTING)
+  if(GPERFTOOLS_BUILD_TESTING)
     add_executable(tcmalloc_minimal_debug_unittest src/tests/tcmalloc_unittest.cc src/tests/testutil.cc)
     target_link_libraries(tcmalloc_minimal_debug_unittest tcmalloc_minimal_debug gtest)
     add_test(tcmalloc_minimal_debug_unittest tcmalloc_minimal_debug_unittest)
@@ -766,7 +768,7 @@ if(GPERFTOOLS_BUILD_HEAP_PROFILER)
   target_link_options(tcmalloc INTERFACE ${TCMALLOC_FLAGS})
 
   ### Unittests
-  if(BUILD_TESTING)
+  if(GPERFTOOLS_BUILD_TESTING)
     add_executable(tcmalloc_unittest src/tests/tcmalloc_unittest.cc src/tests/testutil.cc)
     target_link_libraries(tcmalloc_unittest tcmalloc gtest)
     add_test(tcmalloc_unittest tcmalloc_unittest)
@@ -820,7 +822,7 @@ if(GPERFTOOLS_BUILD_DEBUGALLOC)
     target_link_libraries(tcmalloc_debug PRIVATE symbolize low_level_alloc stacktrace common)
 
     ### Unittests
-    if(BUILD_TESTING)
+    if(GPERFTOOLS_BUILD_TESTING)
       add_executable(tcmalloc_debug_unittest src/tests/tcmalloc_unittest.cc src/tests/testutil.cc)
       target_link_libraries(tcmalloc_debug_unittest tcmalloc_debug gtest)
       add_test(tcmalloc_debug_unittest tcmalloc_debug_unittest)
@@ -850,7 +852,7 @@ if(GPERFTOOLS_BUILD_CPU_PROFILER)
   endif()
   target_link_libraries(profiler PRIVATE stacktrace common)
 
-  if(BUILD_TESTING)
+  if(GPERFTOOLS_BUILD_TESTING)
     add_executable(getpc_test src/tests/getpc_test.cc)
     add_test(getpc_test getpc_test)
 
@@ -873,7 +875,7 @@ if(GPERFTOOLS_BUILD_CPU_PROFILER)
   endif()
 endif()
 
-if(BUILD_TESTING)
+if(GPERFTOOLS_BUILD_TESTING)
   get_directory_property(tests TESTS)
   message("TESTS_ENVIRONMENT:${TESTS_ENVIRONMENT}")
   if(TESTS_ENVIRONMENT)
