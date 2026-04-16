@@ -1239,6 +1239,8 @@ namespace {
 
 typedef void* (*malloc_fn)(void *arg);
 
+SpinLock set_new_handler_lock;
+
 void* handle_oom(malloc_fn retry_fn,
                  void* retry_arg,
                  bool from_operator,
@@ -1258,21 +1260,32 @@ void* handle_oom(malloc_fn retry_fn,
     // "new mode" forced on us. Just return nullptr
     return nullptr;
   }
-
   // we're OOM in operator new or "new mode" is set. We might have to
-  // call new_handler and maybe retry allocation.
+  // call new_handle and maybe retry allocation.
 
   for (;;) {
     // Get the current new handler.  NB: this function is not
     // thread-safe.  We make a feeble stab at making it so here, but
     // this lock only protects against tcmalloc interfering with
     // itself, not with other libraries calling set_new_handler.
-    std::new_handler nh = std::get_new_handler();
-#if __cpp_exceptions
+    std::new_handler nh;
+    {
+      SpinLockHolder h(&set_new_handler_lock);
+      nh = std::set_new_handler(0);
+      (void) std::set_new_handler(nh);
+    }
+#if (defined(__GNUC__) && !defined(__EXCEPTIONS)) || (defined(_HAS_EXCEPTIONS) && !_HAS_EXCEPTIONS)
+    if (!nh) {
+      return NULL;
+    }
+    // Since exceptions are disabled, we don't really know if new_handler
+    // failed.  Assume it will abort if it fails.
+    (*nh)();
+#else
     // If no new_handler is established, the allocation failed.
     if (!nh) {
       if (nothrow) {
-        return nullptr;
+        return NULL;
       }
       throw std::bad_alloc();
     }
@@ -1283,19 +1296,9 @@ void* handle_oom(malloc_fn retry_fn,
       (*nh)();
     } catch (const std::bad_alloc&) {
       if (!nothrow) throw;
-      return nullptr;
+      return NULL;
     }
-#else
-    if (!nh) {
-      if (nothrow) {
-        return nullptr;
-      }
-      Log(kCrash, __FILE__, __LINE__, "C++ OOM in -fno-exceptions case");
-    }
-    // Since exceptions are disabled, we don't really know if new_handler
-    // failed.  Assume it will abort if it fails.
-    (*nh)();
-#endif  // !__cpp_exceptions
+#endif  // (defined(__GNUC__) && !defined(__EXCEPTIONS)) || (defined(_HAS_EXCEPTIONS) && !_HAS_EXCEPTIONS)
 
     // we get here if new_handler returns successfully. So we retry
     // allocation.
