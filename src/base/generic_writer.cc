@@ -45,7 +45,7 @@ void GenericWriter::AppendF(const char* fmt, ...) {
 
   va_list va;
   va_start(va, fmt);
-  int written = vsnprintf(buf_fill_, space_left, fmt, va);
+  int written = perftools_vsnprintf(buf_fill_, space_left, fmt, va);
   va_end(va);
 
   if (PREDICT_FALSE(written >= space_left)) {
@@ -56,7 +56,7 @@ void GenericWriter::AppendF(const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
     space_left = buf_end_ - buf_;
-    written = vsnprintf(buf_, space_left, fmt, va);
+    written = perftools_vsnprintf(buf_, space_left, fmt, va);
     va_end(va);
 
     RAW_DCHECK(written < space_left, "");
