@@ -123,7 +123,7 @@ libcommon_la_SOURCES += src/windows/port.cc \
                         src/windows/preamble_patcher_with_stub.cc
 
 # windows bits need some extra libraries
-AM_LDFLAGS += -lpsapi -lsynchronization -lshlwapi
+AM_LDFLAGS += -lpsapi -lshlwapi
 
 # patch_functions.cc #includes tcmalloc.cc, so no need to link it in.
 TCMALLOC_CC = src/windows/patch_functions.cc
