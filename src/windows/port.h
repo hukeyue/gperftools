@@ -63,7 +63,7 @@
 //
 // https://learn.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-170
 #ifndef _WIN32_WINNT
-# define _WIN32_WINNT 0x0602
+# define _WIN32_WINNT 0x0501
 #endif
 
 #if defined(__MINGW32__) && __MSVCRT_VERSION__ < 0x0700
