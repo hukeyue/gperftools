@@ -42,7 +42,7 @@ include(CheckVariableExists)
 include(CMakeDependentOption)
 include(CTest)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(GPERFTOOLS_BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(DefineTargetVariables)
@@ -400,7 +400,7 @@ add_library(low_level_alloc
   STATIC
   src/base/low_level_alloc.cc)
 
-if(BUILD_SHARED_LIBS)
+if(GPERFTOOLS_BUILD_SHARED_LIBS)
   set_property(TARGET common
                PROPERTY POSITION_INDEPENDENT_CODE ON)
   set_property(TARGET low_level_alloc
@@ -469,7 +469,7 @@ if(WITH_STACK_TRACE)
     src/base/elf_mem_image.cc
     src/base/vdso_support.cc)
   target_link_libraries(stacktrace PRIVATE ${unwind_libs})
-  if(BUILD_SHARED_LIBS)
+  if(GPERFTOOLS_BUILD_SHARED_LIBS)
     set_property(TARGET stacktrace
                  PROPERTY POSITION_INDEPENDENT_CODE ON)
   endif()
@@ -512,7 +512,11 @@ set(MINIMAL_MALLOC_SRC
   src/malloc_hook.cc
   src/malloc_extension.cc)
 
-add_library(tcmalloc_minimal ${TCMALLOC_CC} ${MINIMAL_MALLOC_SRC})
+if (GPERFTOOLS_BUILD_STATIC)
+  add_library(tcmalloc_minimal STATIC ${TCMALLOC_CC} ${MINIMAL_MALLOC_SRC})
+else()
+  add_library(tcmalloc_minimal SHARED ${TCMALLOC_CC} ${MINIMAL_MALLOC_SRC})
+endif()
 if(gperftools_enable_broken_install_targets)
   install(TARGETS tcmalloc_minimal)
 endif()
@@ -679,7 +683,7 @@ if(GPERFTOOLS_BUILD_DEBUGALLOC)
     src/symbolize.cc
     vendor/libbacktrace-integration/backtrace-alloc.cc)
   target_link_libraries(symbolize PRIVATE libbacktrace)
-  if(BUILD_SHARED_LIBS)
+  if(GPERFTOOLS_BUILD_SHARED_LIBS)
     set_property(TARGET libbacktrace PROPERTY POSITION_INDEPENDENT_CODE ON)
     set_property(TARGET symbolize PROPERTY POSITION_INDEPENDENT_CODE ON)
   endif()
