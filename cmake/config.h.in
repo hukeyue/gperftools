@@ -136,16 +136,17 @@
    used internally, to compile the DLL, and every DLL source file #includes
    "config.h" before anything else. */
 #if defined(_WIN32)
-#ifndef PERFTOOLS_DLL_DECL
-# define PERFTOOLS_IS_A_DLL  1
-# define PERFTOOLS_DLL_DECL  __declspec(dllexport)
-# define PERFTOOLS_DLL_DECL_FOR_UNITTESTS  __declspec(dllimport)
-#endif
+#  ifndef PERFTOOLS_DLL_DECL
+#    define PERFTOOLS_IS_A_DLL  1
+#    define PERFTOOLS_DLL_DECL  __declspec(dllexport)
+#    define PERFTOOLS_DLL_DECL_FOR_UNITTESTS  __declspec(dllimport)
+#  endif
 #else
-#ifndef PERFTOOLS_DLL_DECL
-# define PERFTOOLS_DLL_DECL
-# define PERFTOOLS_DLL_DECL_FOR_UNITTESTS
-#endif
+#  ifndef PERFTOOLS_DLL_DECL
+#    define PERFTOOLS_IS_A_DLL  1
+#    define PERFTOOLS_DLL_DECL  __attribute__((visibility("default")))
+#    define PERFTOOLS_DLL_DECL_FOR_UNITTESTS __attribute__((visibility("default")))
+#  endif  /* PERFTOOLS_DLL_DECL */
 #endif
 
 /* if libgcc stacktrace method should be default */
