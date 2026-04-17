@@ -318,7 +318,9 @@ check_variable_exists("program_invocation_name" HAVE_PROGRAM_INVOCATION_NAME)
 
 if(MINGW)
   check_symbol_exists("sleep" "unistd.h" HAVE_DECL_SLEEP)
-  check_symbol_exists("nanosleep" "time.h" HAVE_DECL_NANOSLEEP)
+  #check_symbol_exists("nanosleep" "time.h" HAVE_DECL_NANOSLEEP)
+  # upgraded to latest mingw
+  set(HAVE_DECL_NANOSLEEP 1)
 endif()
 
 if(LINUX)
