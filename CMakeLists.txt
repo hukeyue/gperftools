@@ -434,6 +434,9 @@ set(TCMALLOC_CC src/windows/patch_functions.cc)
 # patch_function uses -lpsapi and spinlock bits use -synchronization
 # and -lshlwapi
 link_libraries(psapi shlwapi)
+if (NOT ALLOW_XP)
+  link_libraries(synchronization)
+endif()
 
 endif()
 

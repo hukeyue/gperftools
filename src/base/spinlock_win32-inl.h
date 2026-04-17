@@ -35,19 +35,43 @@
 
 #include <windows.h>
 
+#if _WIN32_WINNT >= 0x0602
+
+#ifdef _MSC_VER
+#   pragma comment(lib, "Synchronization.lib")
+#endif
+
+#endif // _WIN32_WINNT
+
 namespace base {
 namespace internal {
 
 void SpinLockDelay(std::atomic<int> *w, int32_t value, int loop) {
+#if _WIN32_WINNT >= 0x0602
+  if (loop != 0) {
+    auto wait_ns = static_cast<uint64_t>(base::internal::SuggestedDelayNS(loop)) * 16;
+    auto wait_ms = wait_ns / 1000000;
+
+    WaitOnAddress(w, &value, 4, static_cast<DWORD>(wait_ms));
+  }
+#else
   if (loop == 0) {
   } else if (loop == 1) {
     Sleep(0);
   } else {
     Sleep(base::internal::SuggestedDelayNS(loop) / 1000000);
   }
+#endif
 }
 
 void SpinLockWake(std::atomic<int> *w, bool all) {
+#if _WIN32_WINNT >= 0x0602
+  if (all) {
+    WakeByAddressAll((void*)w);
+  } else {
+    WakeByAddressSingle((void*)w);
+  }
+#endif
 }
 
 } // namespace internal
