@@ -89,6 +89,7 @@
 #include <psapi.h>        // for EnumProcessModules, GetModuleInformation, etc.
 #include <set>
 #include <map>
+#include <new>
 #include <vector>
 #include <base/logging.h>
 #include "base/spinlock.h"
